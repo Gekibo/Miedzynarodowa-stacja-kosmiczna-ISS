@@ -18,6 +18,8 @@ import java.util.Scanner;
 
 public class Main {
     private static final String ISS_API_LOCATION = "http://api.open-notify.org/iss-now.json";
+    private static final String ISS_API_PEOPLE = "http://api.open-notify.org/astros.json";
+
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -71,6 +73,34 @@ public class Main {
                     }
                     break;
                 case 2:
+
+                    HttpClient client1 = HttpClient.newHttpClient();
+                    HttpRequest request1 =HttpRequest.newBuilder()
+                                    .uri(URI.create(ISS_API_PEOPLE))
+                                            .build();
+
+                    final HttpResponse<String> response1 = client1.send(request1, HttpResponse.BodyHandlers.ofString());
+
+                    ObjectMapper objectMapper1= new ObjectMapper();
+                    JsonNode jsonNode1 = objectMapper1.readTree(response1.body());
+                    final int totalNumber = jsonNode1.at("/number").asInt();
+
+                    StringBuilder people = new StringBuilder();
+                    for (JsonNode jsonArrayNode: jsonNode1.at("/people")) {
+                        String name = jsonArrayNode.at("/name").asText();
+                        System.out.println(name);
+                        people.append(name).append(",");
+                    }
+                    people.append(totalNumber).append("\n");
+
+                    try(BufferedWriter writer = new BufferedWriter(new FileWriter("iss_people.csv"))){
+                        writer.write(people.toString());
+                    }
+
+
+                    System.out.println("Wszystkich osób jest: " +totalNumber);
+
+
                     System.out.println();
                     break;
 
@@ -82,7 +112,7 @@ public class Main {
                     break;
             }
 
-        }while (choice != 2) ;
+        }while (choice != 3) ;
 
         scanner.close();
     }
