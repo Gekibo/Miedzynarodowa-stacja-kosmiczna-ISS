@@ -11,15 +11,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Scanner;
 
 public class Main {
+
     private static final String ISS_API_LOCATION = "http://api.open-notify.org/iss-now.json";
     private static final String ISS_API_PEOPLE = "http://api.open-notify.org/astros.json";
-
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -46,15 +45,15 @@ public class Main {
                             .build();
                     final HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                    //Tworzymy sobie mppera, zeby wciagnac wartosc z JSONa, czyli odpowiedzi z zewnetrznego serwisu
+                    //Tworzymy sobie mppera, żeby wciągnąć wartość z JSONa, czyli odpowiedzi z zewnętrznego serwisu
                     ObjectMapper objectMapper = new ObjectMapper();
 
                     final JsonNode jsonNode = objectMapper.readTree(send.body());
+
                     //Wyciągamy timestamp jako long
                     long timestamp = jsonNode.at("/timestamp").asLong();
 
-
-                    //Tworzymy obiekt instant, który będzie nam potrzebny do stworzenia dalej obiektu LocalDateTime
+                    //Tworzymy obiekt instant, który będzie nam potrzebny do stworzenia dalej obiektu LocalDataTiem
                     Instant instant = Instant.ofEpochSecond(timestamp);
                     LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 
@@ -62,27 +61,26 @@ public class Main {
                     final double lat = jsonNode.at("/iss_position/latitude").asDouble();
                     final double lon = jsonNode.at("/iss_position/longitude").asDouble();
 
+                    System.out.println("Dnia " + localDateTime + " ISS " + " jest w miejscu szerokość: " + lat + " długość " + lon);
 
-                    System.out.println("Dnia " + localDateTime +"ISS " + " jest w miejscu szerokość: " +lat +" długość: " +lon);
-
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("iss_location.csv" ,true))){
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("iss_location.csv", true))) {
                         StringBuilder line = new StringBuilder();
-                        line.append("date").append(",").append(localDateTime).append("lat")
+                        line.append("date").append(",").append(localDateTime).append(",").append("lat")
                                 .append(",").append(lat).append(",").append("lon").append(",").append(lon).append("\n");
                         writer.write(line.toString());
                     }
                     break;
-                case 2:
 
+                case 2:
                     HttpClient client1 = HttpClient.newHttpClient();
-                    HttpRequest request1 =HttpRequest.newBuilder()
-                                    .uri(URI.create(ISS_API_PEOPLE))
-                                            .build();
+                    HttpRequest request1 = HttpRequest.newBuilder()
+                            .uri(URI.create(ISS_API_PEOPLE))
+                            .build();
 
                     final HttpResponse<String> response1 = client1.send(request1, HttpResponse.BodyHandlers.ofString());
 
-                    ObjectMapper objectMapper1= new ObjectMapper();
-                    JsonNode jsonNode1 = objectMapper1.readTree(response1.body());
+                    ObjectMapper objectMapper1 = new ObjectMapper();
+                    final JsonNode jsonNode1 = objectMapper1.readTree(response1.body());
                     final int totalNumber = jsonNode1.at("/number").asInt();
 
                     StringBuilder people = new StringBuilder();
@@ -93,26 +91,23 @@ public class Main {
                     }
                     people.append(totalNumber).append("\n");
 
-                    try(BufferedWriter writer = new BufferedWriter(new FileWriter("iss_people.csv"))){
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("iss_people.csv"))) {
                         writer.write(people.toString());
                     }
 
-
-                    System.out.println("Wszystkich osób jest: " +totalNumber);
-
-
-                    System.out.println();
+                    System.out.println("Wszystkich osób jest " + totalNumber);
                     break;
 
                 case 3:
-                    System.out.println("Zamykamy appkę");
+                    System.out.println("Zamkykamy appkę");
                     break;
+
                 default:
                     System.out.println("Nie ma takiej komendy");
                     break;
             }
 
-        }while (choice != 3) ;
+        } while (choice != 3);
 
         scanner.close();
     }
