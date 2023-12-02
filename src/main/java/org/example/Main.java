@@ -3,6 +3,8 @@ package org.example;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,7 +27,8 @@ public class Main {
 
         do {
             System.out.println("1. Pobierz położenie ISS");
-            System.out.println("2. Zakończ aplikacje");
+            System.out.println("2. Pobierz ludzi na ISS");
+            System.out.println("3. Zakończ aplikacje");
 
             choice = scanner.nextInt();
             scanner.nextLine();
@@ -60,10 +63,23 @@ public class Main {
 
                     System.out.println("Dnia " + localDateTime +"ISS " + " jest w miejscu szerokość: " +lat +" długość: " +lon);
 
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("iss_location.csv" ,true))){
+                        StringBuilder line = new StringBuilder();
+                        line.append("date").append(",").append(localDateTime).append("lat")
+                                .append(",").append(lat).append(",").append("lon").append(",").append(lon).append("\n");
+                        writer.write(line.toString());
+                    }
+                    break;
+                case 2:
+                    System.out.println();
                     break;
 
-                case 2:
+                case 3:
                     System.out.println("Zamykamy appkę");
+                    break;
+                default:
+                    System.out.println("Nie ma takiej komendy");
+                    break;
             }
 
         }while (choice != 2) ;
