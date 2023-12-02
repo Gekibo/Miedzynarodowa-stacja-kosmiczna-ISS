@@ -49,10 +49,11 @@ public class Main {
                     long timestamp = jsonNode.at("/timestamp").asLong();
 
 
-                    //
+                    //Tworzymy obiekt instant, który będzie nam potrzebny do stworzenia dalej obiektu LocalDateTime
                     Instant instant = Instant.ofEpochSecond(timestamp);
                     LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 
+                    //Wyciągamy szerokość i długość ISS
                     final double lat = jsonNode.at("/iss_position/latitude").asDouble();
                     final double lon = jsonNode.at("/iss_position/longitude").asDouble();
 
